@@ -4,7 +4,6 @@ let descriptionInput
 let links
 let output
 let keywords
-let priceInput
 let photos
 
 function defineObjects() {
@@ -14,7 +13,6 @@ function defineObjects() {
     links = document.getElementById("links")
     output = document.getElementById('output')
     keywords = document.getElementById("keywords-input")
-    priceInput = document.getElementById("price-input")
     photos = document.getElementById("photos")
 }
 
@@ -55,11 +53,11 @@ function copyToClipboard() {
         });
 }
 
-
 function generate() {
-    let outputText = `${titleInput.value}{${authorInput.value}{${descriptionInput.value}{${keywords.value}{${bookData.isbn}{${priceInput.value}`
+    let outputText = `${titleInput.value}{${authorInput.value}{${descriptionInput.value}{${getCheckedValues()}{${bookData.isbn}`
 
     console.log(outputText)
+    getCheckedValues()
     output.value = outputText;
 }
 
@@ -76,12 +74,61 @@ function clearAndFocus() {
     photos.innerHTML = '';
 }
 
+const checkboxes = ['Justice', 'LGBTQ', 'LP', 'NW', 'Women', 'Holiday', 'True-Crime', 'Graphic-Novel', 'Featured'];
+
+function renderCheckboxes() {
+    const checkboxContainer = document.getElementById('checkbox-container');
+    checkboxes.sort();
+    const numColumns = 2;
+    const numRows = Math.ceil(checkboxes.length / numColumns);
+    const checkboxTemplate = document.createElement('template');
+    checkboxTemplate.innerHTML = `<div class="checkbox-column"></div>`;
+    for (let i = 0; i < numColumns; i++) {
+      checkboxContainer.appendChild(checkboxTemplate.content.cloneNode(true));
+    }
+    const columns = document.getElementsByClassName('checkbox-column');
+    let index = 0;
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < numColumns; j++) {
+        if (index < checkboxes.length) {
+          const checkboxLabel = checkboxes[index];
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.name = 'checkbox';
+          checkbox.value = checkboxLabel;
+          const label = document.createElement('label');
+          label.textContent = checkboxLabel;
+          label.classList.add('checkbox-label');
+          columns[j].appendChild(checkbox);
+          columns[j].appendChild(label);
+          index++;
+        }
+      }
+    }
+  }
+  
+  
+
+function getCheckedValues() {
+  const checkedValues = [];
+  const checkboxes = document.getElementsByName('checkbox');
+  for (let i = 0; i < checkboxes.length; i++) {
+    if (checkboxes[i].checked) {
+      checkedValues.push(checkboxes[i].value);
+    }
+  }
+  return checkedValues.join('; ');
+}
+
+
 
 function formatBookInfo(googleBookData, isbn) {
+    const subtitle = googleBookData.subtitle ? `: ${googleBookData.subtitle}` : '';
+    const formattedTitle = `${googleBookData.title}${subtitle}`
     bookData = {
-        title: googleBookData.title,
+        title: formattedTitle,
         author: formatAuthorNames(googleBookData.authors),
-        description: googleBookData.description,
+        description: `${extractYear(googleBookData.publishedDate)} - ${googleBookData.description}`,
         isbn: isbn
     }
     return bookData;
@@ -130,7 +177,6 @@ document.getElementById("book-form").addEventListener("submit", function (event)
         author: document.getElementById("author-input").value,
         description: document.getElementById("description-input").value,
         keywords: document.getElementById("keywords-input").value,
-        price: document.getElementById("price-input").value
     };
     console.log(formData);
 });
@@ -138,4 +184,5 @@ document.getElementById("book-form").addEventListener("submit", function (event)
 window.addEventListener("load", function () {
     document.getElementById("isbn-input").focus();
     defineObjects()
+    renderCheckboxes()
 });
