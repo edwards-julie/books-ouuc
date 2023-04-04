@@ -45,7 +45,12 @@ function formatAuthorNames(authors) {
 }
 
 function extractYear(dateString) {
-    const dateObj = new Date(dateString);
+    let dateObj;
+    if (dateString.length === 4) {
+        return dateString;
+    } else {
+        dateObj = new Date(dateString);
+    }
     const year = dateObj.getFullYear();
     return year;
 }
@@ -88,16 +93,16 @@ function clearAndFocus() {
 }
 
 const checkboxValues = [
-    'Featured', 
-    'LP', 
-    'Graphic-Novel', 
-    'NW', 
-    'Holiday', 
+    'Featured',
+    'LP',
+    'Graphic-Novel',
+    'NW',
+    'Holiday',
     'Signed',
-    'Justice', 
-    'True-Crime', 
-    'LGBTQ', 
-    'Women' 
+    'Justice',
+    'True-Crime',
+    'LGBTQ',
+    'Women'
 ];
 
 function renderCheckboxes() {
