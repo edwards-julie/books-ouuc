@@ -5,6 +5,9 @@ let links
 let output
 let keywords
 let photos
+let checkboxContainer
+let checkboxes
+
 
 function defineObjects() {
     titleInput = document.getElementById("title-input")
@@ -14,6 +17,8 @@ function defineObjects() {
     output = document.getElementById('output')
     keywords = document.getElementById("keywords-input")
     photos = document.getElementById("photos")
+    checkboxContainer = document.getElementById('checkbox-container');
+    checkboxes = document.getElementsByName('checkbox');
 }
 
 function formatAuthorNames(authors) {
@@ -28,7 +33,7 @@ function formatAuthorNames(authors) {
         formattedAuthors = `${lastName}, ${firstName} ${middleNames}`;
     }
 
-    // Add the remaining authors
+    // Add the second author, and 'et al.'
     if (authors.length > 1) {
         formattedAuthors += ` and ${authors[1]}`
     }
@@ -54,11 +59,15 @@ function copyToClipboard() {
 }
 
 function generate() {
-    let outputText = `${titleInput.value}{${authorInput.value}{${descriptionInput.value}{${getCheckedValues()}{${bookData.isbn}`
+    if (!titleInput.value) {
+        alert('Please select a book.')
+    } else {
+        let outputText = `${titleInput.value}{${authorInput.value}{${descriptionInput.value}{${getCheckedValues()}{${bookData.isbn}`
+        console.log(outputText)
+        getCheckedValues()
+        output.value = outputText;
+    }
 
-    console.log(outputText)
-    getCheckedValues()
-    output.value = outputText;
 }
 
 function clearAndFocus() {
@@ -72,52 +81,63 @@ function clearAndFocus() {
     links.innerHTML = '';
     output.value = '';
     photos.innerHTML = '';
+
+    checkboxes.forEach(x => {
+        x.checked = false
+    })
 }
 
-const checkboxes = ['Justice', 'LGBTQ', 'LP', 'NW', 'Women', 'Holiday', 'True-Crime', 'Graphic-Novel', 'Featured'];
+const checkboxValues = [
+    'Featured', 
+    'LP', 
+    'Graphic-Novel', 
+    'NW', 
+    'Holiday', 
+    'Signed',
+    'Justice', 
+    'True-Crime', 
+    'LGBTQ', 
+    'Women' 
+];
 
 function renderCheckboxes() {
-    const checkboxContainer = document.getElementById('checkbox-container');
-    checkboxes.sort();
+    //checkboxValues.sort();
     const numColumns = 2;
-    const numRows = Math.ceil(checkboxes.length / numColumns);
+    const numRows = Math.ceil(checkboxValues.length / numColumns);
     const checkboxTemplate = document.createElement('template');
     checkboxTemplate.innerHTML = `<div class="checkbox-column"></div>`;
     for (let i = 0; i < numColumns; i++) {
-      checkboxContainer.appendChild(checkboxTemplate.content.cloneNode(true));
+        checkboxContainer.appendChild(checkboxTemplate.content.cloneNode(true));
     }
     const columns = document.getElementsByClassName('checkbox-column');
     let index = 0;
     for (let i = 0; i < numRows; i++) {
-      for (let j = 0; j < numColumns; j++) {
-        if (index < checkboxes.length) {
-          const checkboxLabel = checkboxes[index];
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.name = 'checkbox';
-          checkbox.value = checkboxLabel;
-          const label = document.createElement('label');
-          label.textContent = checkboxLabel;
-          label.classList.add('checkbox-label');
-          columns[j].appendChild(checkbox);
-          columns[j].appendChild(label);
-          index++;
+        for (let j = 0; j < numColumns; j++) {
+            if (index < checkboxValues.length) {
+                const checkboxLabel = checkboxValues[index];
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.name = 'checkbox';
+                checkbox.value = checkboxLabel;
+                const label = document.createElement('label');
+                label.textContent = checkboxLabel;
+                label.classList.add('checkbox-label');
+                columns[j].appendChild(checkbox);
+                columns[j].appendChild(label);
+                index++;
+            }
         }
-      }
     }
-  }
-  
-  
+}
 
 function getCheckedValues() {
-  const checkedValues = [];
-  const checkboxes = document.getElementsByName('checkbox');
-  for (let i = 0; i < checkboxes.length; i++) {
-    if (checkboxes[i].checked) {
-      checkedValues.push(checkboxes[i].value);
+    const checkedValues = [];
+    for (let i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked) {
+            checkedValues.push(checkboxes[i].value);
+        }
     }
-  }
-  return checkedValues.join('; ');
+    return checkedValues.join('; ');
 }
 
 
@@ -150,20 +170,28 @@ document.getElementById("isbn-form").addEventListener("submit", async function (
     const isbn = document.getElementById("isbn-input").value;
 
     if (isbn.length >= 10) {
-        const bookData = await fetchBookInfo(isbn);
+        try {
 
-        // Populate fields in book form using bookData
-        document.getElementById("title-input").value = bookData.title;
-        document.getElementById("author-input").value = bookData.author;
-        document.getElementById("description-input").value = bookData.description;
-        document.getElementById("links").innerHTML = `
+
+            const bookData = await fetchBookInfo(isbn);
+
+            // Populate fields in book form using bookData
+            document.getElementById("title-input").value = bookData.title;
+            document.getElementById("author-input").value = bookData.author;
+            document.getElementById("description-input").value = bookData.description;
+            document.getElementById("links").innerHTML = `
             <p><a href=https://www.amazon.com/s?i=stripbooks&rh=p_66%3A${isbn}&s=relevanceexprank&Adv-Srch-Books-Submit.x=35&Adv-Srch-Books-Submit.y=12&unfiltered=1&ref=sr_adv_b" target="_blank">Amazon</a>
             <p><a href=https://www.ebay.com/sh/research?marketplace=EBAY-US&keywords=${isbn}&dayRange=90&endDate=1680216616964&startDate=1672444216964&categoryId=0&offset=0&limit=50&tabName=SOLD&tz=America%2FLos_Angeles" target="_blank">Ebay</a>
         `;
-        // google api thumbnail: <img src="${bookData.imageLinks?.thumbnail}">
-        photos.innerHTML = `
+            // google api thumbnail: <img src="${bookData.imageLinks?.thumbnail}">
+            photos.innerHTML = `
             <img src="https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg">
         `
+        } catch (error) {
+            alert('ISBN not recognized.')
+        }
+    } else {
+        alert('Please enter a book ISBN.')
     }
 });
 
