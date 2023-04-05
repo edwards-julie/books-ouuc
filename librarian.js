@@ -169,6 +169,15 @@ function addImages(hrefs) {
     hrefs.forEach(x => {
         photos.innerHTML += `<img src="${x}" />`
     })
+    setTimeout(() => {
+        const images = Array.from(document.querySelectorAll('#photos img'))
+        images.forEach(x => {
+            let info = document.createElement('span')
+            info.textContent = `${x.naturalWidth}x${x.naturalHeight}`;
+            photos.insertBefore(info, x)
+        })
+    }, 1000);
+    
 }
 
 // Define a function to fetch book information from an API using ISBN
