@@ -159,14 +159,49 @@ function formatBookInfo(googleBookData, isbn) {
     return bookData;
 }
 
+async function getImages(isbn) {
+    const hrefs = await getGoogleImageSearchResult(isbn)
+    addImages(hrefs)
+}
+
+function addImages(hrefs) {
+    console.log(hrefs)
+    hrefs.forEach(x => {
+        photos.innerHTML += `<img src="${x}" />`
+    })
+}
+
 // Define a function to fetch book information from an API using ISBN
 async function fetchBookInfo(isbn) {
     console.log(isbn)
     const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
     const data = await response.json();
+    getImages(isbn)
     bookData = data.items[0].volumeInfo;
     console.log(bookData)
     return formatBookInfo(bookData, isbn);
+}
+
+async function getGoogleImageSearchResult(isbn) {
+    var numberOfResults = 4;
+
+    // API credentials
+    var apikey = "AIzaSyAeCBGyZIj2L5YG_bISvAqW86jR3TNKQMo";
+    var searchEngineID = "511ac3198aa8e497a";
+
+    // Building call to API
+    var url = "https://www.googleapis.com/customsearch/v1?key=" + apikey + "&cx=" + searchEngineID
+        + "&q=" + isbn + "&num=" + numberOfResults + "&searchType=image";
+    console.log(url);
+    
+    const response = await fetch(url);
+    console.log(response);
+    const data = await response.json();
+    console.log(data);
+    const urls = data.items.map(x => x.link);
+    console.log(urls);
+    
+    return urls;
 }
 
 // Listen for submit event on ISBN form
@@ -178,7 +213,7 @@ document.getElementById("isbn-form").addEventListener("submit", async function (
         try {
 
 
-            const bookData = await fetchBookInfo(isbn);
+            const bookData = await fetchBookInfo(isbn);      
 
             // Populate fields in book form using bookData
             document.getElementById("title-input").value = bookData.title;
@@ -189,9 +224,9 @@ document.getElementById("isbn-form").addEventListener("submit", async function (
             <p><a href=https://www.ebay.com/sh/research?marketplace=EBAY-US&keywords=${isbn}&dayRange=90&endDate=1680216616964&startDate=1672444216964&categoryId=0&offset=0&limit=50&tabName=SOLD&tz=America%2FLos_Angeles" target="_blank">Ebay</a>
         `;
             // google api thumbnail: <img src="${bookData.imageLinks?.thumbnail}">
-            photos.innerHTML = `
-            <img src="https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg">
-        `
+        //     photos.innerHTML += `
+        //     <img src="https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg">
+        // `
         } catch (error) {
             alert('ISBN not recognized.')
         }
