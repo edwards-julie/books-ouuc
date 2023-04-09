@@ -200,7 +200,7 @@ async function getGoogleImageSearchResult(isbn) {
 
     // Building call to API
     var url = "https://www.googleapis.com/customsearch/v1?key=" + apikey + "&cx=" + searchEngineID
-        + "&q=" + isbn + "&num=" + numberOfResults + "&searchType=image";
+        + "&q=" + isbn + "&num=10&searchType=image";
     console.log(url);
     
     const response = await fetch(url);
@@ -208,11 +208,11 @@ async function getGoogleImageSearchResult(isbn) {
     const data = await response.json();
     console.log(data);
     const urls = data.items.map(x => {
-        if (x.link.includes('.jpg')) return `${x.link.split('.jpg')[0]}.jpg`
-    });
+        if (x.link && x.link.includes('.jpg')) return `${x.link.split('.jpg')[0]}.jpg`
+    }).filter(x => x)
     console.log(urls);
     
-    return urls.slice(0, 4);
+    return urls.slice(0, numberOfResults);
 }
 
 // Listen for submit event on ISBN form
