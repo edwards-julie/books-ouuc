@@ -207,10 +207,12 @@ async function getGoogleImageSearchResult(isbn) {
     console.log(response);
     const data = await response.json();
     console.log(data);
-    const urls = data.items.map(x => x.link);
+    const urls = data.items.map(x => {
+        if (!x.link.includes('webp')) return x.link
+    });
     console.log(urls);
     
-    return urls;
+    return urls.slice(0, 4);
 }
 
 // Listen for submit event on ISBN form
