@@ -208,7 +208,7 @@ async function getGoogleImageSearchResult(isbn) {
     const data = await response.json();
     console.log(data);
     const urls = data.items.map(x => {
-        if (!x.link.includes('webp')) return x.link
+        if (x.link.includes('.jpg')) return `${x.link.split('.jpg')[0]}.jpg`
     });
     console.log(urls);
     
