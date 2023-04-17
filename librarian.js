@@ -8,7 +8,7 @@ let photos
 let checkboxContainer
 let checkboxes
 
-
+// defines objects
 function defineObjects() {
     titleInput = document.getElementById("title-input")
     authorInput = document.getElementById("author-input")
