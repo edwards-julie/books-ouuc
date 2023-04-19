@@ -1,0 +1,23 @@
+{
+  "name": "books-ouuc",
+  "version": "1.0.0",
+  "description": "Books OUUC",
+  "main": "index.html",
+  "scripts": {
+    "test": "npm run test",
+    "build": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edwards-julie/books-ouuc.git"
+  },
+  "keywords": [
+    "books"
+  ],
+  "author": "OUUC",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edwards-julie/books-ouuc/issues"
+  },
+  "homepage": "https://github.com/edwards-julie/books-ouuc#readme"
+}
